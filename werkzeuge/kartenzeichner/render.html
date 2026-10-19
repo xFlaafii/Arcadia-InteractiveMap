@@ -1,0 +1,13 @@
+<!doctype html><meta charset="utf-8"><body><canvas id="c"></canvas>
+<script src="lib.js"></script><script src="scene.js"></script>
+<script>
+window.render = async () => {
+  const img = new Image(); img.src = "base.jpg"; await img.decode();
+  const c = document.getElementById("c"); c.width = img.naturalWidth; c.height = img.naturalHeight;
+  const x = c.getContext("2d"); x.drawImage(img, 0, 0);
+  LAND = x.getImageData(0, 0, c.width, c.height).data;
+  setup(x, c.width, c.height);
+  drawScene();
+  return c.toDataURL("image/jpeg", 0.92);
+};
+</script>

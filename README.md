@@ -36,4 +36,6 @@ Weltenbäume: Elarion (Hoher Wald), der Dornenbaum (Naggaroth), Zandrassil und d
 
 - `arcadia-karte.html` – Quelltext der Seite. Die aktuellen Daten (Orte, Runden, Nebel) liegen im Speicher der Claude-Seite.
 - `daten/orte.json` – Stand der Orte beim ersten Befüllen (Koordinaten von 0 bis 1, relativ zur Karte).
-- `karte/arkadia.jpg` – das Kartenbild.
+- `karte/arkadia.jpg` – die Grundkarte ohne Zeichnungen.
+- `karte/arkadia-illustriert.jpg` – die illustrierte Karte, die auf der Seite angezeigt wird.
+- `werkzeuge/kartenzeichner/` – Skripte, mit denen die Illustrationen auf die Grundkarte gezeichnet werden.
