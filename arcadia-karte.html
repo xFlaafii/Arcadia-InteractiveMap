@@ -1,0 +1,758 @@
+<title>Arcadia Weltkarte</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap">
+<style>
+/* Layout: full-height app. Top bar, map viewport left, journal panel right (below the map on phones). */
+:root {
+  --bg: #e9edea;
+  --panel: #f7f9f7;
+  --raised: #ffffff;
+  --fg: #1c2828;
+  --muted: #5a6a68;
+  --line: #cbd5d1;
+  --accent: #2c6a62;
+  --accent-fg: #ffffff;
+  --accent-soft: #d6e7e3;
+  --danger: #a3372b;
+  --fog: #2a3236;
+  --halo: rgba(247, 249, 247, .92);
+  --map-ground: #dfe5e2;
+  --font-display: "IM Fell English SC", "Iowan Old Style", Georgia, serif;
+  --font-body: "Alegreya Sans", "Segoe UI", system-ui, sans-serif;
+  --shadow: 0 1px 2px rgba(20, 30, 30, .18), 0 4px 14px rgba(20, 30, 30, .12);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11181a; --panel: #172124; --raised: #1e2a2e; --fg: #e2e9e6; --muted: #93a4a0;
+    --line: #2a3a3d; --accent: #6cbdb0; --accent-fg: #0d1a19; --accent-soft: #1f3a37;
+    --danger: #e0786a; --fog: #0b1012; --halo: rgba(23, 33, 36, .92); --map-ground: #0e1416;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .5), 0 4px 14px rgba(0, 0, 0, .4);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11181a; --panel: #172124; --raised: #1e2a2e; --fg: #e2e9e6; --muted: #93a4a0;
+  --line: #2a3a3d; --accent: #6cbdb0; --accent-fg: #0d1a19; --accent-soft: #1f3a37;
+  --danger: #e0786a; --fog: #0b1012; --halo: rgba(23, 33, 36, .92); --map-ground: #0e1416;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .5), 0 4px 14px rgba(0, 0, 0, .4);
+  color-scheme: dark;
+}
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body {
+  background: var(--bg); color: var(--fg); font: 16px/1.45 var(--font-body);
+  display: grid; grid-template-rows: auto 1fr; overflow: hidden;
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Top bar */
+.bar {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px;
+  padding-block: 10px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  border-bottom: 1px solid var(--line); background: var(--panel);
+}
+.brand { display: flex; align-items: baseline; gap: 10px; margin-right: auto; min-width: 0; }
+.brand h1 { margin: 0; font: 400 1.6rem/1 var(--font-display); letter-spacing: .02em; }
+.brand span { color: var(--muted); font-size: .9rem; }
+.tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.btn {
+  border: 1px solid var(--line); background: var(--raised); border-radius: 8px;
+  padding: 6px 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; line-height: 1.2;
+}
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+.btn.danger { color: var(--danger); }
+.btn.danger.solid { background: var(--danger); color: var(--panel); border-color: var(--danger); }
+.btn[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg button { border: 0; background: var(--raised); padding: 6px 12px; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); }
+
+/* Main area */
+.main { display: grid; grid-template-columns: 1fr 360px; min-height: 0; }
+.viewport { position: relative; overflow: hidden; background: var(--map-ground); touch-action: none; cursor: grab; min-width: 0; }
+.viewport.dragging { cursor: grabbing; }
+.viewport.placing, .viewport.brush { cursor: crosshair; }
+.world { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+.world img, .world canvas, .world svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; user-select: none; -webkit-user-drag: none; }
+.world svg { overflow: visible; pointer-events: none; }
+.pins { position: absolute; inset: 0; pointer-events: none; }
+
+.pin {
+  position: absolute; left: 0; top: 0; pointer-events: auto; border: 0; padding: 0; background: none; cursor: pointer;
+  display: grid; justify-items: center; gap: 2px; transform-origin: 0 0;
+}
+.pin .badge {
+  width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--raised); color: var(--fg); border: 1.5px solid var(--fg); box-shadow: var(--shadow);
+}
+.pin .badge svg { width: 18px; height: 18px; }
+.pin .label {
+  font: 400 .95rem/1.1 var(--font-display); white-space: nowrap; color: var(--fg);
+  text-shadow: 0 0 3px var(--halo), 0 0 3px var(--halo), 0 0 6px var(--halo); display: none;
+}
+.pins.zoomed .pin .label, .pin.major .label, .pin.sel .label { display: block; }
+.pin.sel .badge { outline: 3px solid var(--accent); outline-offset: 2px; }
+.pin.fogged { opacity: .45; }
+.pin.group .badge { width: 30px; height: 30px; border: 2.5px solid #fff; color: #fff; font: 700 .8rem/1 var(--font-body); letter-spacing: .02em; }
+.pin.group .label { font: 700 .82rem/1.1 var(--font-body); }
+
+.empty-map {
+  position: absolute; inset: 24px; display: grid; place-content: center; justify-items: center; gap: 12px; text-align: center;
+  border: 2px dashed var(--line); border-radius: 14px; color: var(--muted); padding: 24px;
+}
+.empty-map h2 { margin: 0; font: 400 1.8rem/1.1 var(--font-display); color: var(--fg); text-wrap: balance; }
+.empty-map p { margin: 0; max-width: 42ch; }
+
+.zoom { position: absolute; right: 12px; bottom: 12px; display: grid; gap: 6px; }
+.zoom button { width: 38px; height: 38px; border-radius: 8px; border: 1px solid var(--line); background: var(--raised); cursor: pointer; font-size: 1.2rem; box-shadow: var(--shadow); }
+.hint {
+  position: absolute; left: 50%; top: 12px; transform: translateX(-50%); background: var(--raised); border: 1px solid var(--accent);
+  border-radius: 999px; padding: 6px 8px 6px 16px; display: flex; gap: 10px; align-items: center; box-shadow: var(--shadow); max-width: calc(100% - 24px);
+}
+.fogbar {
+  position: absolute; left: 12px; top: 12px; background: var(--raised); border: 1px solid var(--line); border-radius: 10px;
+  padding: 8px 10px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; box-shadow: var(--shadow); max-width: calc(100% - 24px);
+}
+.fogbar label { display: flex; gap: 6px; align-items: center; font-size: .9rem; color: var(--muted); }
+.status { position: absolute; left: 12px; bottom: 12px; font-size: .82rem; color: var(--muted); background: var(--halo); border-radius: 6px; padding: 3px 8px; }
+
+/* Panel */
+.panel { border-left: 1px solid var(--line); background: var(--panel); display: grid; grid-template-rows: auto 1fr; min-height: 0; min-width: 0; }
+.tabs { display: flex; border-bottom: 1px solid var(--line); }
+.tabs button { flex: 1; border: 0; background: none; padding: 12px 8px; cursor: pointer; border-bottom: 2px solid transparent; color: var(--muted); font-weight: 500; }
+.tabs button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--accent); }
+.scroll { overflow-y: auto; padding: 14px 16px 24px; display: grid; align-content: start; gap: 12px; min-width: 0; }
+.list { display: grid; gap: 2px; }
+.item {
+  display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; align-items: center; text-align: left;
+  border: 0; background: none; padding: 8px; border-radius: 8px; cursor: pointer; width: 100%;
+}
+.item:hover { background: var(--accent-soft); }
+.item .dot { width: 14px; height: 14px; border-radius: 50%; grid-row: span 2; }
+.item .ico { width: 20px; height: 20px; grid-row: span 2; color: var(--muted); }
+.item strong { font-weight: 500; min-width: 0; overflow-wrap: anywhere; }
+.item small { grid-column: 2; color: var(--muted); font-size: .86rem; min-width: 0; overflow-wrap: anywhere; }
+.muted { color: var(--muted); }
+.eyebrow { font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0; }
+.detail { display: grid; gap: 12px; align-content: start; min-width: 0; }
+.detail h2 { margin: 2px 0 0; font: 400 1.7rem/1.1 var(--font-display); text-wrap: balance; overflow-wrap: anywhere; }
+.detail p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.back { justify-self: start; border: 0; background: none; color: var(--accent); cursor: pointer; padding: 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px 2px 6px; font-size: .88rem; background: var(--raised); cursor: pointer; }
+.chip i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.note { border: 1px dashed var(--accent); border-radius: 8px; padding: 10px 12px; background: var(--accent-soft); display: grid; gap: 4px; }
+.field { display: grid; gap: 4px; }
+.field label { font-size: .85rem; color: var(--muted); }
+.field input, .field select, .field textarea { width: 100%; box-sizing: border-box; border: 1px solid var(--line); background: var(--raised); border-radius: 8px; padding: 7px 10px; }
+.field textarea { min-height: 90px; resize: vertical; }
+.swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+.swatches button { width: 28px; height: 28px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; }
+.swatches button[aria-pressed="true"] { border-color: var(--fg); box-shadow: 0 0 0 2px var(--panel) inset; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.search { width: 100%; box-sizing: border-box; border: 1px solid var(--line); background: var(--raised); border-radius: 8px; padding: 7px 10px; }
+.toast { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--fg); color: var(--panel); padding: 8px 14px; border-radius: 8px; z-index: 20; max-width: calc(100% - 32px); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+@media (max-width: 760px) {
+  .main { grid-template-columns: 1fr; grid-template-rows: 58% 42%; }
+  .panel { border-left: 0; border-top: 1px solid var(--line); }
+  .brand span { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+<header class="bar">
+  <div class="brand"><h1>Arcadia</h1><span>Weltkarte</span></div>
+  <div class="tools" id="tools"></div>
+</header>
+<div class="main">
+  <div class="viewport" id="vp" aria-label="Weltkarte">
+    <div class="world" id="world">
+      <img id="mapimg" alt="Karte von Arcadia" hidden>
+      <svg id="trails" aria-hidden="true"></svg>
+      <canvas id="fog" aria-hidden="true"></canvas>
+    </div>
+    <div class="pins" id="pins"></div>
+    <div class="empty-map" id="emptymap" hidden></div>
+    <div class="fogbar" id="fogbar" hidden></div>
+    <div class="hint" id="hint" hidden></div>
+    <div class="zoom">
+      <button id="zin" aria-label="Hineinzoomen">+</button>
+      <button id="zout" aria-label="Herauszoomen">−</button>
+      <button id="zfit" aria-label="Ganze Karte zeigen">⤢</button>
+    </div>
+    <div class="status" id="status">Lädt …</div>
+  </div>
+  <aside class="panel">
+    <div class="tabs" role="tablist" id="tabs">
+      <button role="tab" id="tab-groups" aria-selected="true">Runden</button>
+      <button role="tab" id="tab-places" aria-selected="false">Orte</button>
+    </div>
+    <div class="scroll" id="panel"></div>
+  </aside>
+</div>
+<input type="file" id="mapfile" accept="image/png,image/jpeg,image/webp" class="sr">
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(() => {
+"use strict";
+const $ = (id) => document.getElementById(id);
+function h(tag, attrs, ...kids) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (v == null || v === false) continue;
+    if (k === "class") el.className = v;
+    else if (k === "style") el.style.cssText = v;
+    else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+    else el.setAttribute(k, v === true ? "" : v);
+  }
+  for (const c of kids.flat()) if (c != null && c !== false) el.append(c.nodeType ? c : String(c));
+  return el;
+}
+function svgIcon(d) {
+  const s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  s.setAttribute("viewBox", "0 0 20 20"); s.setAttribute("aria-hidden", "true");
+  const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  p.setAttribute("d", d); p.setAttribute("fill", "currentColor"); s.append(p); return s;
+}
+
+const TYPES = {
+  stadt:     { label: "Stadt",       major: true,  d: "M3 17V8l2-2 2 2v3h2V6l1-2 1 2v5h2V8l2-2 2 2v9z" },
+  burg:      { label: "Burg",        major: true,  d: "M4 17V5h2v2h2V5h4v2h2V5h2v12h-5v-4H9v4z" },
+  dorf:      { label: "Dorf",        major: false, d: "M3 17V9l7-5 7 5v8h-5v-5H8v5z" },
+  taverne:   { label: "Taverne",     major: false, d: "M5 6h8v11H5zM13 8h2.5a2.5 2.5 0 0 1 0 5H13v-1.6h2.4a.9.9 0 0 0 0-1.8H13z" },
+  dungeon:   { label: "Dungeon",     major: false, d: "M3 17c0-8 3-12 7-12s7 4 7 12h-4c0-4-1-6-3-6s-3 2-3 6z" },
+  ruine:     { label: "Ruine",       major: false, d: "M4 15h12v2H4zM5 7h2v8H5zM9 10h2v5H9zM13 6h2v9h-2z" },
+  landmarke: { label: "Landmarke",   major: false, d: "M10 3l2 5h5l-4 3 2 5-5-3-5 3 2-5-4-3h5z" },
+};
+const COLORS = ["#c0492f", "#2f74b5", "#7353c2", "#b98a0c", "#23885f", "#c2448c", "#14808c", "#5f6d22"];
+
+const S = {
+  places: new Map(), groups: new Map(), notes: new Map(), settings: {}, fog: { strokes: [] },
+  sel: null, tab: "groups", filter: "", mode: "view", tool: "move", brush: 0.04,
+  playerPreview: false, showTrails: true, placing: false, canWrite: false, isDM: false,
+  live: false, confirmDel: false, loaded: false,
+};
+let db = null, assets = null;
+const view = { s: 1, tx: 0, ty: 0, fit: 1 };
+let W = 1600, H = 1100;
+
+const vp = $("vp"), world = $("world"), pins = $("pins"), img = $("mapimg"), fogC = $("fog"), trails = $("trails");
+
+/* ---------- toast ---------- */
+let toastT;
+function toast(msg) { const t = $("toast"); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => (t.hidden = true), 3200); }
+
+/* ---------- storage ---------- */
+const COLS = { places: "places", groups: "groups", notes: "dmnotes" };
+async function put(kind, id, obj) {
+  if (!db) { S[kind].set(id, obj); renderAll(); return; }
+  try { await db.collection(COLS[kind]).doc(id).set(obj); } catch (e) { onErr(e); }
+}
+async function del(kind, id) {
+  if (!db) { S[kind].delete(id); renderAll(); return; }
+  try { await db.collection(COLS[kind]).doc(id).delete(); } catch (e) { onErr(e); }
+}
+async function putDoc(path, obj, local) {
+  if (!db) { local(); renderAll(); return; }
+  try { await db.doc(path).set(obj); } catch (e) { onErr(e); }
+}
+function onErr(e) {
+  const c = e && e.code;
+  if (c === "invalid_argument") { S.canWrite = false; S.mode = "view"; toast("Du kannst diese Karte nur ansehen."); renderAll(); }
+  else if (c === "quota_exceeded" || c === "resource_exhausted") toast("Der Speicher der Karte ist voll. Lösche alte Einträge oder Nebelstriche.");
+  else toast("Speichern hat nicht geklappt. Versuch es gleich noch einmal.");
+}
+const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+
+/* ---------- view transform ---------- */
+function applyView() {
+  world.style.width = W + "px"; world.style.height = H + "px";
+  world.style.transform = `translate(${view.tx}px, ${view.ty}px) scale(${view.s})`;
+  positionPins();
+}
+function fit() {
+  const r = vp.getBoundingClientRect();
+  view.fit = Math.min(r.width / W, r.height / H) * 0.96;
+  view.s = view.fit; view.tx = (r.width - W * view.s) / 2; view.ty = (r.height - H * view.s) / 2;
+  applyView();
+}
+function zoomAt(cx, cy, f) {
+  const ns = Math.min(Math.max(view.s * f, view.fit * 0.6), Math.max(view.fit * 10, 3));
+  f = ns / view.s;
+  view.tx = cx - (cx - view.tx) * f; view.ty = cy - (cy - view.ty) * f; view.s = ns; applyView();
+}
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+function flyTo(nx, ny) {
+  const r = vp.getBoundingClientRect();
+  const s = Math.max(view.s, view.fit * 2.2);
+  const to = { s, tx: r.width / 2 - nx * W * s, ty: r.height / 2 - ny * H * s };
+  if (reduceMotion) { Object.assign(view, to); applyView(); return; }
+  const from = { ...view }, t0 = performance.now();
+  const step = (t) => {
+    const k = Math.min(1, (t - t0) / 380), e = 1 - Math.pow(1 - k, 3);
+    view.s = from.s + (to.s - from.s) * e; view.tx = from.tx + (to.tx - from.tx) * e; view.ty = from.ty + (to.ty - from.ty) * e;
+    applyView(); if (k < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+function toNorm(clientX, clientY) {
+  const r = vp.getBoundingClientRect();
+  return { x: (clientX - r.left - view.tx) / (view.s * W), y: (clientY - r.top - view.ty) / (view.s * H) };
+}
+const clamp01 = (v) => Math.min(1, Math.max(0, v));
+
+/* ---------- fog ---------- */
+const playerView = () => !S.isDM || S.playerPreview;
+const fogOn = () => !!S.settings.fog;
+let fogCtx = fogC.getContext("2d");
+function fogColor() { return getComputedStyle(document.documentElement).getPropertyValue("--fog").trim() || "#222"; }
+function sizeFog() {
+  const k = Math.min(1, 2048 / Math.max(W, H));
+  fogC.width = Math.round(W * k); fogC.height = Math.round(H * k);
+}
+function drawFog(extra) {
+  const c = fogCtx, fw = fogC.width, fh = fogC.height;
+  c.clearRect(0, 0, fw, fh);
+  if (!fogOn() || !S.settings.mapAsset) { fogC.hidden = true; return; }
+  fogC.hidden = false;
+  fogC.style.opacity = playerView() ? "1" : "0.55";
+  const col = fogColor();
+  c.globalCompositeOperation = "source-over"; c.fillStyle = col; c.fillRect(0, 0, fw, fh);
+  const list = extra ? S.fog.strokes.concat([extra]) : S.fog.strokes;
+  for (const st of list) {
+    if (st.m === "R") { c.globalCompositeOperation = "source-over"; c.clearRect(0, 0, fw, fh); continue; }
+    if (st.m === "H") { c.globalCompositeOperation = "source-over"; c.fillStyle = col; c.fillRect(0, 0, fw, fh); continue; }
+    c.globalCompositeOperation = st.m === "r" ? "destination-out" : "source-over";
+    c.strokeStyle = col; c.fillStyle = col; c.lineCap = "round"; c.lineJoin = "round";
+    const lw = st.r * 2 * fw, p = st.p;
+    if (p.length === 2) { c.beginPath(); c.arc(p[0] * fw, p[1] * fh, lw / 2, 0, Math.PI * 2); c.fill(); continue; }
+    c.lineWidth = lw; c.beginPath(); c.moveTo(p[0] * fw, p[1] * fh);
+    for (let i = 2; i < p.length; i += 2) c.lineTo(p[i] * fw, p[i + 1] * fh);
+    c.stroke();
+  }
+  c.globalCompositeOperation = "source-over";
+}
+function isFogged(nx, ny) {
+  if (!fogOn() || fogC.hidden) return false;
+  try {
+    const a = fogCtx.getImageData(Math.min(fogC.width - 1, Math.floor(nx * fogC.width)), Math.min(fogC.height - 1, Math.floor(ny * fogC.height)), 1, 1).data[3];
+    return a > 128;
+  } catch { return false; }
+}
+
+/* ---------- pins ---------- */
+let pinEls = [];
+function groupInitials(name) {
+  const w = String(name || "?").trim().split(/\s+/);
+  return (w.length > 1 ? w[0][0] + w[1][0] : w[0].slice(0, 2)).toUpperCase();
+}
+function nearestPlace(x, y, max = 0.035) {
+  let best = null, bd = max;
+  for (const [id, p] of S.places) { const d = Math.hypot((p.x - x) * W / Math.max(W, H), (p.y - y) * H / Math.max(W, H)); if (d < bd) { bd = d; best = id; } }
+  return best;
+}
+function renderPins() {
+  pins.replaceChildren(); pinEls = [];
+  if (!S.settings.mapAsset) return;
+  const pv = playerView();
+  for (const [id, p] of S.places) {
+    const fogged = isFogged(p.x, p.y);
+    if (pv && fogged) continue;
+    const t = TYPES[p.type] || TYPES.landmarke;
+    const isSel = S.sel && S.sel.kind === "places" && S.sel.id === id;
+    const el = h("button", { class: "pin" + (t.major ? " major" : "") + (isSel ? " sel" : "") + (!pv && fogged ? " fogged" : ""), "aria-label": p.name || "Ort" },
+      h("span", { class: "badge" }, svgIcon(t.d)), h("span", { class: "label" }, p.name || "Ohne Namen"));
+    hookPin(el, "places", id);
+    pins.append(el); pinEls.push({ el, kind: "places", id, x: p.x, y: p.y, dx: 0, dy: 0 });
+  }
+  // cluster groups standing together so tokens don't hide each other
+  const gs = [...S.groups.entries()];
+  const clusters = [];
+  for (const g of gs) {
+    const c = clusters.find((c) => Math.hypot(c.x - g[1].x, c.y - g[1].y) < 0.012);
+    if (c) c.items.push(g); else clusters.push({ x: g[1].x, y: g[1].y, items: [g] });
+  }
+  for (const c of clusters) {
+    c.items.forEach(([id, g], i) => {
+      const n = c.items.length, a = (i / n) * Math.PI * 2 - Math.PI / 2, rad = n > 1 ? 22 : 0;
+      const isSel = S.sel && S.sel.kind === "groups" && S.sel.id === id;
+      const el = h("button", { class: "pin group major" + (isSel ? " sel" : ""), "aria-label": g.name || "Runde" },
+        h("span", { class: "badge", style: `background:${g.color || COLORS[0]}` }, groupInitials(g.name)),
+        h("span", { class: "label" }, g.name || "Runde"));
+      hookPin(el, "groups", id);
+      pins.append(el); pinEls.push({ el, kind: "groups", id, x: g.x, y: g.y, dx: Math.cos(a) * rad, dy: Math.sin(a) * rad - 14 });
+    });
+  }
+  positionPins();
+}
+function positionPins() {
+  for (const p of pinEls) {
+    const sx = view.tx + p.x * W * view.s + p.dx, sy = view.ty + p.y * H * view.s + p.dy;
+    p.el.style.transform = `translate(${sx}px, ${sy}px) translate(-50%, -15px)`;
+  }
+  pins.classList.toggle("zoomed", view.s / view.fit > 1.7);
+}
+function hookPin(el, kind, id) {
+  el.style.transformOrigin = "0 0";
+  el.addEventListener("pointerdown", (e) => {
+    if (S.placing || (S.mode === "edit" && S.tool !== "move")) return;
+    e.stopPropagation();
+    const entry = pinEls.find((p) => p.el === el);
+    const canDrag = S.mode === "edit" && S.canWrite;
+    const start = { x: e.clientX, y: e.clientY }; let moved = false;
+    el.setPointerCapture(e.pointerId);
+    const mv = (ev) => {
+      if (Math.hypot(ev.clientX - start.x, ev.clientY - start.y) > 4) moved = true;
+      if (moved && canDrag) { const n = toNorm(ev.clientX, ev.clientY); entry.x = clamp01(n.x); entry.y = clamp01(n.y); positionPins(); }
+    };
+    const up = () => {
+      el.removeEventListener("pointermove", mv); el.removeEventListener("pointerup", up); el.removeEventListener("pointercancel", up);
+      if (!moved) { select(kind, id); return; }
+      if (canDrag) commitMove(kind, id, entry.x, entry.y);
+    };
+    el.addEventListener("pointermove", mv); el.addEventListener("pointerup", up); el.addEventListener("pointercancel", up);
+  });
+}
+function commitMove(kind, id, x, y) {
+  const cur = S[kind].get(id); if (!cur) return;
+  const next = { ...cur, x, y };
+  if (kind === "groups") {
+    const trail = (cur.trail || []).concat([{ x: cur.x, y: cur.y }]).slice(-60);
+    next.trail = trail; next.at = nearestPlace(x, y) || null;
+  }
+  put(kind, id, next);
+}
+
+/* ---------- trails ---------- */
+function renderTrails() {
+  trails.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  trails.replaceChildren();
+  if (!S.showTrails || !S.settings.mapAsset) return;
+  const NS = "http://www.w3.org/2000/svg";
+  for (const [, g] of S.groups) {
+    const pts = (g.trail || []).concat([{ x: g.x, y: g.y }]);
+    if (pts.length < 2) continue;
+    const line = document.createElementNS(NS, "polyline");
+    line.setAttribute("points", pts.map((p) => `${p.x * W},${p.y * H}`).join(" "));
+    line.setAttribute("fill", "none"); line.setAttribute("stroke", g.color || COLORS[0]);
+    line.setAttribute("stroke-width", "3"); line.setAttribute("stroke-dasharray", "2 7");
+    line.setAttribute("stroke-linecap", "round"); line.setAttribute("vector-effect", "non-scaling-stroke");
+    trails.append(line);
+  }
+}
+
+/* ---------- pointer: pan, pinch, place, brush ---------- */
+const ptrs = new Map(); let gesture = null; let brushStroke = null;
+vp.addEventListener("pointerdown", (e) => {
+  if (e.target.closest(".zoom, .hint, .fogbar, .empty-map")) return;
+  vp.setPointerCapture(e.pointerId);
+  ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (ptrs.size === 2) { brushStroke = null; const [a, b] = [...ptrs.values()]; gesture = { type: "pinch", d: Math.hypot(a.x - b.x, a.y - b.y), cx: (a.x + b.x) / 2, cy: (a.y + b.y) / 2 }; return; }
+  if (S.mode === "edit" && S.tool !== "move" && !S.placing && S.settings.mapAsset) {
+    const n = toNorm(e.clientX, e.clientY);
+    brushStroke = { m: S.tool === "reveal" ? "r" : "h", r: S.brush, p: [round4(n.x), round4(n.y)] };
+    gesture = { type: "brush" }; drawFog(brushStroke); return;
+  }
+  gesture = { type: "pan", x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY, moved: false };
+});
+const round4 = (v) => Math.round(v * 10000) / 10000;
+vp.addEventListener("pointermove", (e) => {
+  if (!ptrs.has(e.pointerId)) return;
+  ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (!gesture) return;
+  if (gesture.type === "pinch" && ptrs.size >= 2) {
+    const [a, b] = [...ptrs.values()]; const d = Math.hypot(a.x - b.x, a.y - b.y);
+    const cx = (a.x + b.x) / 2, cy = (a.y + b.y) / 2, r = vp.getBoundingClientRect();
+    view.tx += cx - gesture.cx; view.ty += cy - gesture.cy;
+    zoomAt(cx - r.left, cy - r.top, d / gesture.d); gesture.d = d; gesture.cx = cx; gesture.cy = cy;
+  } else if (gesture.type === "brush" && brushStroke) {
+    const n = toNorm(e.clientX, e.clientY), p = brushStroke.p;
+    const lx = p[p.length - 2], ly = p[p.length - 1];
+    if (Math.hypot(n.x - lx, n.y - ly) > S.brush * 0.25) { p.push(round4(n.x), round4(n.y)); drawFog(brushStroke); }
+  } else if (gesture.type === "pan") {
+    if (Math.hypot(e.clientX - gesture.sx, e.clientY - gesture.sy) > 4) { gesture.moved = true; vp.classList.add("dragging"); }
+    view.tx += e.clientX - gesture.x; view.ty += e.clientY - gesture.y; gesture.x = e.clientX; gesture.y = e.clientY; applyView();
+  }
+});
+function endPtr(e) {
+  if (!ptrs.has(e.pointerId)) return;
+  ptrs.delete(e.pointerId); vp.classList.remove("dragging");
+  if (gesture && gesture.type === "brush" && brushStroke && ptrs.size === 0) {
+    const st = brushStroke; brushStroke = null; gesture = null;
+    const strokes = S.fog.strokes.concat([st]);
+    const size = JSON.stringify(strokes).length;
+    if (size > 240000) { toast("Der Nebel-Speicher ist voll. Nutze „Alles aufdecken“ oder „Alles verdecken“ zum Neustart."); drawFog(); return; }
+    if (size > 180000) toast("Der Nebel-Speicher ist fast voll.");
+    S.fog = { strokes }; drawFog(); renderPins();
+    putDoc("world/fog", { strokes }, () => {});
+    return;
+  }
+  if (gesture && gesture.type === "pan" && !gesture.moved && ptrs.size === 0) {
+    if (S.placing) { const n = toNorm(e.clientX, e.clientY); if (n.x >= 0 && n.x <= 1 && n.y >= 0 && n.y <= 1) createPlace(n.x, n.y); }
+    else if (S.sel) { S.sel = null; S.confirmDel = false; renderPins(); renderPanel(); }
+  }
+  if (ptrs.size === 0) gesture = null;
+  else if (ptrs.size === 1) { const [p] = [...ptrs.values()]; gesture = { type: "pan", x: p.x, y: p.y, sx: p.x, sy: p.y, moved: true }; }
+}
+vp.addEventListener("pointerup", endPtr); vp.addEventListener("pointercancel", endPtr);
+vp.addEventListener("wheel", (e) => { e.preventDefault(); const r = vp.getBoundingClientRect(); zoomAt(e.clientX - r.left, e.clientY - r.top, Math.exp(-e.deltaY * 0.0015)); }, { passive: false });
+$("zin").onclick = () => { const r = vp.getBoundingClientRect(); zoomAt(r.width / 2, r.height / 2, 1.4); };
+$("zout").onclick = () => { const r = vp.getBoundingClientRect(); zoomAt(r.width / 2, r.height / 2, 1 / 1.4); };
+$("zfit").onclick = fit;
+new ResizeObserver(() => { const keep = view.s / view.fit; const r = vp.getBoundingClientRect(); view.fit = Math.min(r.width / W, r.height / H) * 0.96; if (keep <= 1.01) fit(); else applyView(); }).observe(vp);
+
+/* ---------- actions ---------- */
+function select(kind, id) {
+  S.sel = { kind, id }; S.confirmDel = false; S.tab = kind === "groups" ? "groups" : "places";
+  renderPins(); renderPanel();
+}
+function createPlace(x, y) {
+  S.placing = false; vp.classList.remove("placing");
+  const id = newId();
+  put("places", id, { name: "Neuer Ort", type: "dorf", x, y, desc: "" });
+  S.sel = { kind: "places", id }; S.tab = "places"; renderAll();
+  setTimeout(() => { const i = $("f-name"); if (i) { i.focus(); i.select(); } }, 60);
+}
+function createGroup() {
+  const r = vp.getBoundingClientRect();
+  const n = toNorm(r.left + r.width / 2, r.top + r.height / 2);
+  const used = new Set([...S.groups.values()].map((g) => g.color));
+  const color = COLORS.find((c) => !used.has(c)) || COLORS[S.groups.size % COLORS.length];
+  const id = newId();
+  put("groups", id, { name: "Neue Runde", color, x: clamp01(n.x), y: clamp01(n.y), players: "", note: "", last: "", trail: [], at: null });
+  S.sel = { kind: "groups", id }; S.tab = "groups"; renderAll();
+  setTimeout(() => { const i = $("f-name"); if (i) { i.focus(); i.select(); } }, 60);
+}
+async function uploadMap(file) {
+  if (!db) {
+    const u = URL.createObjectURL(file);
+    const dims = await new Promise((res) => { const im = new Image(); im.onload = () => res({ w: im.naturalWidth, h: im.naturalHeight }); im.src = u; });
+    localMapUrl = u; S.settings = { ...S.settings, mapAsset: "local", w: dims.w, h: dims.h }; renderAll(); return;
+  }
+  if (!assets) { toast("Nur die Spielleitung kann eine Karte hochladen."); return; }
+  toast("Karte wird hochgeladen …");
+  try {
+    const dims = await new Promise((res, rej) => { const u = URL.createObjectURL(file); const im = new Image(); im.onload = () => { res({ w: im.naturalWidth, h: im.naturalHeight }); URL.revokeObjectURL(u); }; im.onerror = rej; im.src = u; });
+    const r = await assets.upload(file, file.type ? undefined : { type: "image/png" });
+    const next = { ...S.settings, mapAsset: r.id, w: dims.w, h: dims.h };
+    await putDoc("world/settings", next, () => (S.settings = next));
+    toast("Karte gespeichert.");
+  } catch (e) {
+    toast(e && e.code === "too_large" ? "Die Datei ist zu groß (höchstens 20 MB)." : "Hochladen hat nicht geklappt.");
+  }
+}
+$("mapfile").addEventListener("change", (e) => { const f = e.target.files[0]; if (f) uploadMap(f); e.target.value = ""; });
+
+/* ---------- top bar ---------- */
+function renderTools() {
+  const t = $("tools"); t.replaceChildren();
+  if (S.isDM) {
+    t.append(h("div", { class: "seg", role: "group", "aria-label": "Modus" },
+      h("button", { "aria-pressed": S.mode === "view" ? "true" : "false", onclick: () => { S.mode = "view"; S.tool = "move"; S.placing = false; renderAll(); } }, "Ansehen"),
+      h("button", { "aria-pressed": S.mode === "edit" ? "true" : "false", onclick: () => { S.mode = "edit"; S.playerPreview = false; renderAll(); } }, "Bearbeiten")));
+    if (S.mode === "edit" && S.settings.mapAsset) {
+      t.append(
+        h("button", { class: "btn", onclick: () => { S.placing = true; S.tool = "move"; renderAll(); } }, "+ Ort"),
+        h("button", { class: "btn", onclick: createGroup }, "+ Runde"),
+        h("button", { class: "btn", onclick: () => $("mapfile").click() }, "Karte ersetzen"));
+    }
+    if (S.mode === "view" && fogOn()) {
+      t.append(h("button", { class: "btn", "aria-pressed": S.playerPreview ? "true" : "false", onclick: () => { S.playerPreview = !S.playerPreview; renderAll(); } }, "Spieleransicht"));
+    }
+  }
+  if (S.settings.mapAsset) t.append(h("button", { class: "btn", "aria-pressed": S.showTrails ? "true" : "false", onclick: () => { S.showTrails = !S.showTrails; renderTrails(); renderTools(); } }, "Wege"));
+}
+function renderOverlays() {
+  const hint = $("hint");
+  hint.hidden = !S.placing;
+  if (S.placing) hint.replaceChildren(h("span", null, "Tippe auf die Karte, um den Ort zu setzen."), h("button", { class: "btn", onclick: () => { S.placing = false; renderAll(); } }, "Abbrechen"));
+  vp.classList.toggle("placing", S.placing);
+  vp.classList.toggle("brush", S.mode === "edit" && S.tool !== "move");
+
+  const fb = $("fogbar");
+  fb.hidden = !(S.mode === "edit" && S.isDM && S.settings.mapAsset);
+  if (!fb.hidden) {
+    const kids = [h("label", null, h("input", { type: "checkbox", id: "fog-on", checked: fogOn(), onchange: (e) => setSettings({ fog: e.target.checked }) }), "Nebel des Krieges")];
+    if (fogOn()) {
+      kids.push(h("div", { class: "seg", role: "group", "aria-label": "Werkzeug" },
+        ...[["move", "Bewegen"], ["reveal", "Aufdecken"], ["hide", "Verdecken"]].map(([k, l]) =>
+          h("button", { "aria-pressed": S.tool === k ? "true" : "false", onclick: () => { S.tool = k; S.placing = false; renderAll(); } }, l))));
+      if (S.tool !== "move") kids.push(h("label", null, "Pinsel", h("input", { type: "range", id: "fog-brush", min: "0.01", max: "0.12", step: "0.005", value: String(S.brush), oninput: (e) => (S.brush = +e.target.value) })));
+      kids.push(h("button", { class: "btn", onclick: () => setFog([{ m: "R" }]) }, "Alles aufdecken"), h("button", { class: "btn", onclick: () => setFog([]) }, "Alles verdecken"));
+    }
+    fb.replaceChildren(...kids);
+  }
+
+  const em = $("emptymap");
+  em.hidden = !!S.settings.mapAsset || !S.loaded;
+  if (!em.hidden) {
+    em.replaceChildren(
+      h("h2", null, "Noch keine Karte hinterlegt"),
+      S.isDM ? h("p", null, "Lade deine Karte von Arcadia hoch. Danach setzt du Orte, stellst die Runden auf und deckst den Nebel auf.")
+             : h("p", null, "Sobald die Spielleitung die Karte hochlädt, erscheint sie hier."),
+      S.isDM && (assets || !db) ? h("button", { class: "btn primary", onclick: () => $("mapfile").click() }, "Karte hochladen") : null);
+  }
+  const st = $("status");
+  st.textContent = !S.loaded ? "Lädt …" : !S.live ? "Nur in diesem Fenster, wird nicht gespeichert" : S.isDM ? (S.playerPreview ? "So sehen deine Spieler die Karte" : "Du siehst alles als Spielleitung") : "Nur ansehen";
+}
+function setSettings(patch) { const next = { ...S.settings, ...patch }; S.settings = next; renderAll(); putDoc("world/settings", next, () => {}); }
+function setFog(strokes) { S.fog = { strokes }; drawFog(); renderPins(); putDoc("world/fog", { strokes }, () => {}); }
+
+/* ---------- panel ---------- */
+function placeName(id) { const p = id && S.places.get(id); return p ? p.name : null; }
+function fmtDate(s) { if (!s) return ""; const d = new Date(s + "T12:00:00"); return isNaN(d) ? s : d.toLocaleDateString("de-DE", { day: "numeric", month: "long", year: "numeric" }); }
+function renderTabs() {
+  $("tab-groups").setAttribute("aria-selected", S.tab === "groups"); $("tab-places").setAttribute("aria-selected", S.tab === "places");
+  const visPlaces = [...S.places.values()].filter((p) => !(playerView() && isFogged(p.x, p.y))).length;
+  $("tab-groups").textContent = `Runden (${S.groups.size})`; $("tab-places").textContent = `Orte (${visPlaces})`;
+}
+$("tab-groups").onclick = () => { S.tab = "groups"; S.sel = null; renderPanel(); renderPins(); };
+$("tab-places").onclick = () => { S.tab = "places"; S.sel = null; renderPanel(); renderPins(); };
+
+function renderPanel() {
+  renderTabs();
+  const P = $("panel"); P.replaceChildren();
+  const editing = S.mode === "edit" && S.canWrite;
+  if (S.sel) {
+    const item = S[S.sel.kind].get(S.sel.id);
+    if (!item) { S.sel = null; } else { P.append(S.sel.kind === "places" ? (editing ? placeForm(S.sel.id, item) : placeView(S.sel.id, item)) : (editing ? groupForm(S.sel.id, item) : groupView(S.sel.id, item))); return; }
+  }
+  if (S.tab === "groups") {
+    const list = [...S.groups.entries()].sort((a, b) => String(a[1].name).localeCompare(String(b[1].name), "de"));
+    if (!list.length) P.append(h("p", { class: "muted" }, S.isDM ? (S.settings.mapAsset ? "Noch keine Runden. Wechsle zu „Bearbeiten“ und leg mit „+ Runde“ die erste an." : "Lade zuerst deine Karte hoch, dann stellst du hier die Runden auf.") : "Hier erscheinen die Runden, sobald die Spielleitung sie einträgt."));
+    else P.append(h("div", { class: "list" }, list.map(([id, g]) => h("button", { class: "item", onclick: () => { select("groups", id); flyTo(g.x, g.y); } },
+      h("span", { class: "dot", style: `background:${g.color}` }), h("strong", null, g.name || "Runde"),
+      h("small", null, [placeName(g.at) ? "bei " + placeName(g.at) : "unterwegs", g.last ? " · zuletzt " + fmtDate(g.last) : ""].join(""))))));
+  } else {
+    P.append(h("input", { class: "search", id: "place-search", type: "search", placeholder: "Orte durchsuchen", value: S.filter, "aria-label": "Orte durchsuchen",
+      oninput: (e) => { S.filter = e.target.value; renderPlaceList(); } }));
+    P.append(h("div", { class: "list", id: "placelist" }));
+    renderPlaceList();
+  }
+}
+function renderPlaceList() {
+  const L = $("placelist"); if (!L) return; L.replaceChildren();
+  const q = S.filter.trim().toLowerCase();
+  const list = [...S.places.entries()].filter(([, p]) => !(playerView() && isFogged(p.x, p.y)))
+    .filter(([, p]) => !q || String(p.name).toLowerCase().includes(q) || (TYPES[p.type] || {}).label?.toLowerCase().includes(q))
+    .sort((a, b) => String(a[1].name).localeCompare(String(b[1].name), "de"));
+  if (!list.length) { L.append(h("p", { class: "muted" }, q ? "Kein Ort passt zur Suche." : S.isDM ? (S.settings.mapAsset ? "Noch keine Orte. Wechsle zu „Bearbeiten“ und setze mit „+ Ort“ den ersten." : "Lade zuerst deine Karte hoch.") : "Noch keine entdeckten Orte.")); return; }
+  for (const [id, p] of list) {
+    const t = TYPES[p.type] || TYPES.landmarke;
+    const ico = svgIcon(t.d); ico.setAttribute("class", "ico");
+    const here = [...S.groups.values()].filter((g) => g.at === id).map((g) => g.name);
+    L.append(h("button", { class: "item", onclick: () => { select("places", id); flyTo(p.x, p.y); } }, ico, h("strong", null, p.name || "Ohne Namen"),
+      h("small", null, t.label + (here.length ? " · hier: " + here.join(", ") : ""))));
+  }
+}
+const backBtn = () => h("button", { class: "back", onclick: () => { S.sel = null; S.confirmDel = false; renderPanel(); renderPins(); } }, "← Zurück zur Liste");
+
+function placeView(id, p) {
+  const t = TYPES[p.type] || TYPES.landmarke;
+  const here = [...S.groups.entries()].filter(([, g]) => g.at === id);
+  const note = S.isDM ? S.notes.get(id) : null;
+  return h("div", { class: "detail" }, backBtn(),
+    h("p", { class: "eyebrow" }, t.label), h("h2", null, p.name || "Ohne Namen"),
+    p.desc ? h("p", null, p.desc) : h("p", { class: "muted" }, "Noch keine Beschreibung."),
+    here.length ? h("div", { class: "field" }, h("span", { class: "eyebrow" }, "Gerade hier"),
+      h("div", { class: "chips" }, here.map(([gid, g]) => h("button", { class: "chip", onclick: () => select("groups", gid) }, h("i", { style: `background:${g.color}` }), g.name)))) : null,
+    note && note.text && !S.playerPreview ? h("div", { class: "note" }, h("span", { class: "eyebrow" }, "Nur für dich"), h("p", null, note.text)) : null,
+    S.canWrite ? h("div", { class: "row" }, h("button", { class: "btn", onclick: () => { S.mode = "edit"; renderAll(); } }, "Bearbeiten")) : null);
+}
+function placeForm(id, p) {
+  const save = (patch) => put("places", id, { ...S.places.get(id), ...patch });
+  const note = S.notes.get(id);
+  return h("div", { class: "detail" }, backBtn(),
+    h("p", { class: "eyebrow" }, "Ort bearbeiten"),
+    h("div", { class: "field" }, h("label", { for: "f-name" }, "Name"), h("input", { id: "f-name", value: p.name || "", onchange: (e) => save({ name: e.target.value.trim() || "Ohne Namen" }) })),
+    h("div", { class: "field" }, h("label", { for: "f-type" }, "Art"), h("select", { id: "f-type", onchange: (e) => save({ type: e.target.value }) },
+      Object.entries(TYPES).map(([k, t]) => h("option", { value: k, selected: p.type === k }, t.label)))),
+    h("div", { class: "field" }, h("label", { for: "f-desc" }, "Beschreibung (sehen alle)"), h("textarea", { id: "f-desc", onchange: (e) => save({ desc: e.target.value }) }, p.desc || "")),
+    h("div", { class: "field" }, h("label", { for: "f-note" }, "Geheime Notiz (nur du)"), h("textarea", { id: "f-note", onchange: (e) => { const v = e.target.value; if (v.trim()) put("notes", id, { text: v }); else del("notes", id); } }, (note && note.text) || "")),
+    h("p", { class: "muted", style: "font-size:.88rem" }, "Ziehe das Symbol auf der Karte, um den Ort zu verschieben."),
+    deleteRow("Ort löschen", () => { del("places", id); del("notes", id); S.sel = null; }));
+}
+function groupView(id, g) {
+  const trailN = (g.trail || []).length;
+  return h("div", { class: "detail" }, backBtn(),
+    h("p", { class: "eyebrow" }, "Runde"), h("h2", null, g.name || "Runde"),
+    h("p", null, placeName(g.at) ? "Gerade bei " + placeName(g.at) + "." : "Gerade unterwegs."),
+    g.players ? h("div", { class: "field" }, h("span", { class: "eyebrow" }, "Spieler"), h("p", null, g.players)) : null,
+    g.note ? h("div", { class: "field" }, h("span", { class: "eyebrow" }, "Stand der Geschichte"), h("p", null, g.note)) : null,
+    g.last ? h("p", { class: "muted" }, "Zuletzt gespielt am " + fmtDate(g.last)) : null,
+    trailN ? h("p", { class: "muted" }, `Bisheriger Weg: ${trailN} Station${trailN === 1 ? "" : "en"}`) : null,
+    S.canWrite ? h("div", { class: "row" }, h("button", { class: "btn", onclick: () => { S.mode = "edit"; renderAll(); } }, "Bearbeiten")) : null);
+}
+function groupForm(id, g) {
+  const save = (patch) => put("groups", id, { ...S.groups.get(id), ...patch });
+  const places = [...S.places.entries()].sort((a, b) => String(a[1].name).localeCompare(String(b[1].name), "de"));
+  return h("div", { class: "detail" }, backBtn(),
+    h("p", { class: "eyebrow" }, "Runde bearbeiten"),
+    h("div", { class: "field" }, h("label", { for: "f-name" }, "Name"), h("input", { id: "f-name", value: g.name || "", onchange: (e) => save({ name: e.target.value.trim() || "Runde" }) })),
+    h("div", { class: "field" }, h("span", { class: "eyebrow" }, "Farbe"), h("div", { class: "swatches" },
+      COLORS.map((c) => h("button", { style: `background:${c}`, "aria-label": "Farbe " + c, "aria-pressed": g.color === c ? "true" : "false", onclick: () => save({ color: c }) })))),
+    h("div", { class: "field" }, h("label", { for: "f-goto" }, "Zu einem Ort schicken"), h("select", { id: "f-goto", onchange: (e) => {
+      const p = S.places.get(e.target.value); if (!p) return; commitMove("groups", id, p.x, p.y);
+    } }, h("option", { value: "" }, placeName(g.at) ? "Gerade bei " + placeName(g.at) : "Ort wählen …"), places.map(([pid, p]) => h("option", { value: pid }, p.name)))),
+    h("div", { class: "field" }, h("label", { for: "f-players" }, "Spieler"), h("input", { id: "f-players", value: g.players || "", placeholder: "z. B. Anna (Elfe), Tom (Zwerg)", onchange: (e) => save({ players: e.target.value }) })),
+    h("div", { class: "field" }, h("label", { for: "f-note" }, "Stand der Geschichte (sehen alle)"), h("textarea", { id: "f-note", onchange: (e) => save({ note: e.target.value }) }, g.note || "")),
+    h("div", { class: "field" }, h("label", { for: "f-last" }, "Zuletzt gespielt"), h("input", { id: "f-last", type: "date", value: g.last || "", onchange: (e) => save({ last: e.target.value }) })),
+    h("div", { class: "row" }, h("span", { class: "muted" }, `Weg: ${(g.trail || []).length} Stationen`), (g.trail || []).length ? h("button", { class: "btn", onclick: () => save({ trail: [] }) }, "Weg leeren") : null),
+    h("p", { class: "muted", style: "font-size:.88rem" }, "Ziehe die Spielfigur auf der Karte. Jeder Zug wird als Station im Weg festgehalten."),
+    deleteRow("Runde löschen", () => { del("groups", id); S.sel = null; }));
+}
+function deleteRow(label, action) {
+  if (!S.confirmDel) return h("div", { class: "row" }, h("button", { class: "btn danger", onclick: () => { S.confirmDel = true; renderPanel(); } }, label));
+  return h("div", { class: "row" }, h("span", null, "Wirklich löschen?"),
+    h("button", { class: "btn danger solid", onclick: () => { S.confirmDel = false; action(); renderAll(); } }, "Ja, löschen"),
+    h("button", { class: "btn", onclick: () => { S.confirmDel = false; renderPanel(); } }, "Abbrechen"));
+}
+
+/* ---------- map image ---------- */
+let curAsset = null, localMapUrl = null;
+function applyMap() {
+  const a = S.settings.mapAsset;
+  const nw = S.settings.w || 1600, nh = S.settings.h || 1100;
+  const sizeChanged = nw !== W || nh !== H;
+  W = nw; H = nh;
+  if (a !== curAsset) { curAsset = a; if (a) { img.src = a === "local" ? localMapUrl : "/_blob/" + a; img.hidden = false; } else { img.removeAttribute("src"); img.hidden = true; } }
+  if (sizeChanged || !fogC.width) { sizeFog(); fit(); }
+}
+
+function renderAll() { applyMap(); drawFog(); renderTools(); renderOverlays(); renderTrails(); renderPins(); renderPanel(); }
+
+/* theme changes recolor the fog */
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => drawFog());
+new MutationObserver(() => drawFog()).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+
+/* ---------- boot ---------- */
+sizeFog(); fit(); renderAll();
+(async () => {
+  const use = (n) => (window.claude && window.claude.use ? window.claude.use(n).catch(() => null) : Promise.resolve(null));
+  const [user, dbNs] = await Promise.all([use("user"), use("db")]);
+  db = dbNs;
+  let canEdit = false;
+  try { canEdit = user ? await user.canEdit() : false; } catch {}
+  S.isDM = canEdit || !db; S.canWrite = S.isDM;
+  if (canEdit) assets = await use("assets");
+  S.live = !!db;
+  if (!db) { S.loaded = true; renderAll(); return; }
+  const fail = () => { S.loaded = true; renderAll(); };
+  let pending = 4;
+  const ready = () => { if (--pending <= 0) { S.loaded = true; } renderAll(); };
+  const once = (fn) => { let done = false; return (...a) => { fn(...a); if (!done) { done = true; ready(); } else renderAll(); }; };
+  db.doc("world/settings").onSnapshot(once((s) => { S.settings = s.exists ? { ...s.data() } : {}; }), fail);
+  db.doc("world/fog").onSnapshot(once((s) => { S.fog = s.exists ? { strokes: (s.data().strokes || []).slice() } : { strokes: [] }; }), fail);
+  db.collection("places").onSnapshot(once((q) => { S.places = new Map(q.docs.map((d) => [d.id, { ...d.data() }])); }), fail);
+  db.collection("groups").onSnapshot(once((q) => { S.groups = new Map(q.docs.map((d) => [d.id, { ...d.data() }])); }), fail);
+  if (canEdit) db.collection("dmnotes").onSnapshot((q) => { S.notes = new Map(q.docs.map((d) => [d.id, { ...d.data() }])); renderPanel(); }, () => {});
+})();
+})();
+</script>
