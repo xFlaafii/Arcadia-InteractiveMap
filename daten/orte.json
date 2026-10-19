@@ -1,0 +1,466 @@
+[
+ {
+  "id": "r-schwertkueste",
+  "name": "Schwertküste",
+  "type": "region",
+  "x": 0.895,
+  "y": 0.3367,
+  "desc": "Die Küste zwischen dem ewigen Eis im Norden und den Sandreichen im Süden. Handelsstädte, Abenteurer und alte Ruinen, von Luskan bis Kerzenburg. Im Osten endet sie am Grenzgebirge, hinter dem die Chaoswüste liegt."
+ },
+ {
+  "id": "luskan",
+  "name": "Luskan",
+  "type": "stadt",
+  "x": 0.74,
+  "y": 0.1367,
+  "desc": "Die Stadt der Segel. Raue Hafenstadt im Norden, beherrscht von den Hohen Kapitänen und der Arkanen Bruderschaft. Hier findet man Piraten, Schmuggler und Schiffe, die nach Norden ins Eis fahren."
+ },
+ {
+  "id": "niewinter",
+  "name": "Niewinter",
+  "type": "stadt",
+  "x": 0.76,
+  "y": 0.2133,
+  "desc": "Das Juwel des Nordens. Durch einen warmen Fluss friert der Hafen nie zu. Nach Jahren von Krieg und Vulkanausbruch wird die Stadt gerade wieder aufgebaut."
+ },
+ {
+  "id": "niewinterwald",
+  "name": "Niewinterwald",
+  "type": "landmarke",
+  "x": 0.815,
+  "y": 0.19,
+  "desc": "Uralter Wald östlich von Niewinter. Unter seinen Bäumen liegen elfische Ruinen und schlafende Feuerelementare in den Tiefen des Berges Hotenow."
+ },
+ {
+  "id": "phandalin",
+  "name": "Phandalin",
+  "type": "dorf",
+  "x": 0.8,
+  "y": 0.2667,
+  "desc": "Kleines Grenzstädtchen auf den Ruinen einer alten Siedlung. In der Nähe soll die verlorene Mine von Phandelver liegen, mit der legendären Zauberschmiede."
+ },
+ {
+  "id": "triboar",
+  "name": "Triboar",
+  "type": "dorf",
+  "x": 0.83,
+  "y": 0.2267,
+  "desc": "Wichtiger Kreuzungspunkt an der Langen Straße. Jedes Jahr findet hier das große Pferdefest statt."
+ },
+ {
+  "id": "tiefwasser",
+  "name": "Tiefwasser",
+  "type": "stadt",
+  "x": 0.8,
+  "y": 0.3133,
+  "desc": "Die Stadt der Pracht und größte Metropole der Schwertküste. Regiert von maskierten Lords. Unter der Stadt liegt der Unterberg, der gefährlichste Dungeon der Küste."
+ },
+ {
+  "id": "dolchfurt",
+  "name": "Dolchfurt",
+  "type": "dorf",
+  "x": 0.815,
+  "y": 0.3633,
+  "desc": "Kleine, befestigte Stadt an einer Furt des Delimbiyr. Beliebter Halt für Händler zwischen Tiefwasser und Baldurs Tor."
+ },
+ {
+  "id": "baldurs-tor",
+  "name": "Baldurs Tor",
+  "type": "stadt",
+  "x": 0.86,
+  "y": 0.41,
+  "desc": "Geschäftige Hafenstadt am Chionthar. Reich, korrupt und voller Gilden. Die Flammende Faust hält die Ordnung, die Diebesgilde den Rest."
+ },
+ {
+  "id": "kerzenburg",
+  "name": "Kerzenburg",
+  "type": "burg",
+  "x": 0.9,
+  "y": 0.46,
+  "desc": "Eine Festung voller Bücher auf einer Klippe. Eintritt erhält nur, wer ein Buch spendet, das die Bibliothek noch nicht besitzt."
+ },
+ {
+  "id": "silbrigmond",
+  "name": "Silbrigmond",
+  "type": "stadt",
+  "x": 0.885,
+  "y": 0.1667,
+  "desc": "Die Edelsteinstadt des Nordens. Ein Hort der Magie und Gelehrsamkeit, geschützt von einem uralten Mythal."
+ },
+ {
+  "id": "mithril-halle",
+  "name": "Mithril-Halle",
+  "type": "burg",
+  "x": 0.9325,
+  "y": 0.1267,
+  "desc": "Die Zwergenfestung des Clans Heldenhammer im Grenzgebirge. Ihre Schmieden versorgen die Chaoswacht mit Waffen und Rüstungen."
+ },
+ {
+  "id": "hoher-wald",
+  "name": "Hoher Wald",
+  "type": "landmarke",
+  "x": 0.88,
+  "y": 0.2867,
+  "desc": "Ein riesiger, kaum erforschter Urwald voller Elfenruinen, Baumhirten und Druidenkreise. In seiner Mitte wächst Elarion, der Hüterbaum."
+ },
+ {
+  "id": "wb-schwertkueste",
+  "name": "Elarion, der Hüterbaum",
+  "type": "weltenbaum",
+  "x": 0.915,
+  "y": 0.2533,
+  "desc": "Ein Weltenbaum im Herzen des Hohen Waldes, so hoch, dass seine Krone in den Wolken verschwindet. Die Elfen sagen, seine Wurzeln halten den Norden zusammen und dämpfen den Einfluss des Chaos, der über das Grenzgebirge drängt."
+ },
+ {
+  "id": "r-eiswindtal",
+  "name": "Eiswindtal",
+  "type": "region",
+  "x": 0.78,
+  "y": 0.0367,
+  "desc": "Eine gefrorene Tundra jenseits des Rückgrats der Welt. Zehn kleine Siedlungen trotzen dort dem ewigen Winter, der Kälte und den Barbarenstämmen."
+ },
+ {
+  "id": "bryn-shander",
+  "name": "Bryn Shander",
+  "type": "dorf",
+  "x": 0.85,
+  "y": 0.0533,
+  "desc": "Die größte der Zehn Städte im Eiswindtal. Ein ummauerter Handelsplatz, an dem Knochenschnitzerei aus Knöchelkopf-Forelle verkauft wird."
+ },
+ {
+  "id": "rueckgrat",
+  "name": "Rückgrat der Welt",
+  "type": "landmarke",
+  "x": 0.725,
+  "y": 0.1,
+  "desc": "Eine eisige Gebirgskette, die die Schwertküste vom Eiswindtal trennt. Nur wenige Pässe sind im Sommer passierbar."
+ },
+ {
+  "id": "chaoswacht",
+  "name": "Die Chaoswacht",
+  "type": "burg",
+  "x": 0.975,
+  "y": 0.22,
+  "desc": "Eine Kette von Festungen auf dem Grenzgebirge. Zwerge und Menschen bewachen hier gemeinsam den Rand der Welt. Dahinter beginnt die Chaoswüste, in der die Dunklen Götter herrschen und Krieger des Chaos auf ihre Stunde warten."
+ },
+ {
+  "id": "r-calimshan",
+  "name": "Calimshan",
+  "type": "region",
+  "x": 0.94,
+  "y": 0.52,
+  "desc": "Ein heißes Wüstenreich südlich der Schwertküste. Einst herrschten hier Dschinn und Ifrit, deren uralter Krieg die Glasdünen geschaffen hat. Heute regieren Paschas, Händlerfürsten und Gildenmeister."
+ },
+ {
+  "id": "memnon",
+  "name": "Memnon",
+  "type": "stadt",
+  "x": 0.945,
+  "y": 0.46,
+  "desc": "Grenzstadt am Rand der Wüste, gegründet vom Ifrit Memnon. Hier kreuzen sich die Karawanenwege nach Norden. Feuer gilt als heilig."
+ },
+ {
+  "id": "calimport",
+  "name": "Calimport",
+  "type": "stadt",
+  "x": 0.885,
+  "y": 0.64,
+  "desc": "Die größte Stadt Calimshans, eine endlose Stadt aus Kuppeln, Basaren und Palästen. Wer hier etwas will, muss mit den Diebesgilden verhandeln."
+ },
+ {
+  "id": "messingthron",
+  "name": "Der Messingthron",
+  "type": "ruine",
+  "x": 0.9825,
+  "y": 0.5667,
+  "desc": "Die Ruine des Palastes, in dem der Dschinnfürst Calim einst herrschte. Unter dem Sand sollen gebundene Elementargeister auf ihre Befreiung warten."
+ },
+ {
+  "id": "glasduenen",
+  "name": "Die Glasdünen",
+  "type": "landmarke",
+  "x": 0.94,
+  "y": 0.6133,
+  "desc": "Dünen aus geschmolzenem Glas, Narben des Krieges zwischen Dschinn und Ifrit. In der Mittagssonne blenden sie, nachts singen sie im Wind."
+ },
+ {
+  "id": "r-meer",
+  "name": "Meer der Schwerter",
+  "type": "region",
+  "x": 0.44,
+  "y": 0.3733,
+  "desc": "Das große Binnenmeer, das alle Kontinente Arcadias verbindet. Handelsrouten, Piraten und Seeungeheuer teilen sich die Wellen."
+ },
+ {
+  "id": "r-mondschein",
+  "name": "Mondscheininseln",
+  "type": "region",
+  "x": 0.59,
+  "y": 0.4267,
+  "desc": "Eine nebelverhangene Inselkette mitten im Meer der Schwerter. Ffolk, Nordmänner und Feenwesen leben hier, geschützt von der Erdmutter."
+ },
+ {
+  "id": "caer-callidyrr",
+  "name": "Caer Callidyrr",
+  "type": "burg",
+  "x": 0.58,
+  "y": 0.22,
+  "desc": "Die Burg des Hochkönigs der Mondscheininseln auf der größten Insel."
+ },
+ {
+  "id": "mondbrunnen",
+  "name": "Der Mondbrunnen",
+  "type": "landmarke",
+  "x": 0.5,
+  "y": 0.2333,
+  "desc": "Ein heiliger Brunnen der Erdmutter. Druiden hüten ihn, denn in Vollmondnächten zeigt sein Wasser Dinge, die noch geschehen werden."
+ },
+ {
+  "id": "kelvins",
+  "name": "Kelvins Steinhaufen",
+  "type": "landmarke",
+  "x": 0.44,
+  "y": 0.04,
+  "desc": "Ein einsamer, vereister Gipfel im Norden. Zwerge sagen, im Berg schlafe etwas Altes und Kaltes."
+ },
+ {
+  "id": "schlundatoll",
+  "name": "Das Schlundatoll",
+  "type": "dungeon",
+  "x": 0.2875,
+  "y": 0.4967,
+  "desc": "Ein ringförmiges Atoll mit einer Lagune, deren Boden niemand je gesehen hat. Schiffe, die zu nah kommen, werden in einen Strudel gezogen. Am Grund liegt der Eingang zu einem versunkenen Tempel."
+ },
+ {
+  "id": "r-naggaroth",
+  "name": "Naggaroth",
+  "type": "region",
+  "x": 0.14,
+  "y": 0.4267,
+  "desc": "Das Land der Kälte und des Hasses. Hier herrschen die Dunkelelfen unter dem Hexenkönig. Ihre Städte sind schwarze Festungen, ihre Schwarzen Archen terrorisieren das Meer."
+ },
+ {
+  "id": "r-land-der-kaelte",
+  "name": "Land der Kälte",
+  "type": "region",
+  "x": 0.1,
+  "y": 0.1333,
+  "desc": "Der gefrorene Norden Naggaroths. Eiswinde, Kaltblüter-Rudel und Chaosbanden aus dem Norden. Nur der Turm von Ghrond hält hier Wacht."
+ },
+ {
+  "id": "naggarond",
+  "name": "Naggarond",
+  "type": "stadt",
+  "x": 0.105,
+  "y": 0.3733,
+  "desc": "Die Hauptstadt der Dunkelelfen und Sitz des Hexenkönigs. Eine Festung mit hundert Türmen, umgeben von Mauern aus schwarzem Stein und den Gehängten an ihren Zinnen."
+ },
+ {
+  "id": "ghrond",
+  "name": "Turm von Ghrond",
+  "type": "burg",
+  "x": 0.08,
+  "y": 0.2,
+  "desc": "Der Nordturm, ein gewaltiger Turm der Zauberinnen. Von hier beobachten sie die Winde der Magie und die Chaoswüste."
+ },
+ {
+  "id": "karond-kar",
+  "name": "Karond Kar",
+  "type": "stadt",
+  "x": 0.17,
+  "y": 0.0933,
+  "desc": "Der Turm der Verzweiflung. Größter Sklavenmarkt Naggaroths, wohin die Raubzüge der Dunkelelfen ihre Gefangenen bringen."
+ },
+ {
+  "id": "clar-karond",
+  "name": "Clar Karond",
+  "type": "stadt",
+  "x": 0.25,
+  "y": 0.2933,
+  "desc": "Hafenstadt und Werft der Schwarzen Archen, schwimmender Festungen, mit denen die Dunkelelfen die Küsten aller Kontinente plündern."
+ },
+ {
+  "id": "hag-graef",
+  "name": "Hag Graef",
+  "type": "stadt",
+  "x": 0.0475,
+  "y": 0.3133,
+  "desc": "Die Dunkle Krypta, eine Stadt in einem Tal, in das kaum Sonne fällt. Ihre Bewohner gelten selbst unter Dunkelelfen als grausam."
+ },
+ {
+  "id": "har-ganeth",
+  "name": "Har Ganeth",
+  "type": "stadt",
+  "x": 0.13,
+  "y": 0.4667,
+  "desc": "Die Stadt der Henker, Heimat der Khaine-Kulte. Ihre Tempel sind mit Blut getränkt, die Hexenelfen tanzen in Ekstase."
+ },
+ {
+  "id": "schwarzruecken",
+  "name": "Schwarzrückengebirge",
+  "type": "landmarke",
+  "x": 0.085,
+  "y": 0.3,
+  "desc": "Ein zerklüftetes Gebirge aus schwarzem Gestein. Hier liegen die Minen, in denen Sklaven Erz für die Dunkelelfen fördern."
+ },
+ {
+  "id": "wb-naggaroth",
+  "name": "Der Dornenbaum",
+  "type": "weltenbaum",
+  "x": 0.055,
+  "y": 0.5067,
+  "desc": "Ein Weltenbaum, verdorben von den Zauberinnen Naggaroths. Seine Rinde ist schwarz, seine Dornen sind lang wie Speere und sein Saft wird für Gifte genutzt. Manche glauben, man könne ihn noch heilen."
+ },
+ {
+  "id": "r-zulrakar",
+  "name": "Zul'Rakar",
+  "type": "region",
+  "x": 0.78,
+  "y": 0.8133,
+  "desc": "Ein dampfender Dschungel voller Tempelruinen, Dinosaurier und Trollstämme. Das Reich Zul'Rakar war einst ein Imperium der Trolle, heute kämpfen Stämme, Goblins und Abenteurer um seine Schätze."
+ },
+ {
+  "id": "goldpyramide",
+  "name": "Goldpyramide von Zul'Rakar",
+  "type": "stadt",
+  "x": 0.89,
+  "y": 0.8267,
+  "desc": "Die goldene Tempelstadt der Trolle, errichtet auf den Hügeln über dem Dschungel. Hier thront der Rat der Loa-Priester."
+ },
+ {
+  "id": "kielbruchbucht",
+  "name": "Kielbruchbucht",
+  "type": "stadt",
+  "x": 0.655,
+  "y": 0.8667,
+  "desc": "Ein Piratenhafen in einer Felsenbucht, betrieben vom Goblin-Handelskartell. Hier ist alles käuflich, und jeder ist bewaffnet."
+ },
+ {
+  "id": "zul-vasha",
+  "name": "Ruinen von Zul'Vasha",
+  "type": "ruine",
+  "x": 0.7,
+  "y": 0.8067,
+  "desc": "Die überwucherten Ruinen einer Trollstadt, in der ein Blutgott verehrt wurde. Die Priester sollen sein Erwachen vorbereiten."
+ },
+ {
+  "id": "glutkrater",
+  "name": "Der Glutkrater",
+  "type": "landmarke",
+  "x": 0.83,
+  "y": 0.9267,
+  "desc": "Ein riesiger Krater mit heißen Quellen, Elementarkristallen und urzeitlichen Bestien. Die Pflanzen wachsen hier wie im Fieber."
+ },
+ {
+  "id": "schlangengruft",
+  "name": "Die Schlangengruft",
+  "type": "dungeon",
+  "x": 0.9,
+  "y": 0.96,
+  "desc": "Ein Höhlenlabyrinth unter dem Dschungel, in dem Schlangenmenschen Wache halten. Ihre Schätze liegen tief im Dunkeln."
+ },
+ {
+  "id": "wb-dschungel-1",
+  "name": "Zandrassil",
+  "type": "weltenbaum",
+  "x": 0.75,
+  "y": 0.8867,
+  "desc": "Der Mutterbaum der Trollstämme, so groß, dass in seinen Ästen ganze Dörfer hängen. Loa-Geister wohnen in seiner Krone."
+ },
+ {
+  "id": "wb-dschungel-2",
+  "name": "Die Lianenmutter",
+  "type": "weltenbaum",
+  "x": 0.94,
+  "y": 0.74,
+  "desc": "Ein Weltenbaum, dessen Lianen bis ins Meer reichen. Er wächst am Rand von Calimshan und kämpft gegen die Wüste. Druiden sagen, solange er steht, bleibt der Sand im Norden."
+ },
+ {
+  "id": "sichelinseln",
+  "name": "Sichelinseln",
+  "type": "landmarke",
+  "x": 0.7425,
+  "y": 0.6567,
+  "desc": "Eine Kette kleiner Inseln, die eine Sichel bilden. Versteck für Schmuggler zwischen Calimport und Kielbruchbucht."
+ },
+ {
+  "id": "r-valdorien",
+  "name": "Valdorien",
+  "type": "region",
+  "x": 0.19,
+  "y": 0.8867,
+  "desc": "Ein altes, sagenumwobenes Reich unter dem Himmelsdorn. Einst lebten hier Titanen, heute herrschen Ritterorden und Drachenkulte."
+ },
+ {
+  "id": "himmelsdorn",
+  "name": "Himmelsdorn",
+  "type": "landmarke",
+  "x": 0.3275,
+  "y": 0.6867,
+  "desc": "Ein einzelner, gewaltiger Berg, der aus den Ebenen ragt. An seiner Spitze nistet ein uralter Drache, dem die Valdorier jedes Jahr Tribut zahlen."
+ },
+ {
+  "id": "aurenhall",
+  "name": "Aurenhall",
+  "type": "stadt",
+  "x": 0.22,
+  "y": 0.8,
+  "desc": "Die Königsstadt Valdoriens, mit goldenen Dächern und weißen Mauern. Hier tagt der Rat der Ritterorden."
+ },
+ {
+  "id": "sturmwacht",
+  "name": "Sturmwacht",
+  "type": "burg",
+  "x": 0.48,
+  "y": 0.5867,
+  "desc": "Eine Festung an der Nordspitze Valdoriens, die das Meer gegen die Schwarzen Archen aus Naggaroth bewacht."
+ },
+ {
+  "id": "salzmarkt",
+  "name": "Salzmarkt",
+  "type": "stadt",
+  "x": 0.35,
+  "y": 0.8267,
+  "desc": "Die wichtigste Hafenstadt Valdoriens. Hier kommen Salz, Fisch und Gerüchte aus allen Teilen Arcadias an."
+ },
+ {
+  "id": "wb-valdorien-1",
+  "name": "Valdrassil",
+  "type": "weltenbaum",
+  "x": 0.26,
+  "y": 0.9467,
+  "desc": "Der älteste Weltenbaum Arcadias, älter als die Titanen selbst. Wer in seinem Schatten schläft, träumt von früheren Zeitaltern."
+ },
+ {
+  "id": "wb-valdorien-2",
+  "name": "Der Silberbaum",
+  "type": "weltenbaum",
+  "x": 0.41,
+  "y": 0.64,
+  "desc": "Ein Weltenbaum mit silbernen Blättern, der im Mondlicht leuchtet. Seine Blätter heilen Wunden, wenn man sie frisch pflückt."
+ },
+ {
+  "id": "nebelinseln",
+  "name": "Nebelinseln",
+  "type": "landmarke",
+  "x": 0.125,
+  "y": 0.74,
+  "desc": "Eine Gruppe kleiner Inseln, die fast immer im Nebel liegen. Hexen sollen hier leben, die für jeden Gefallen einen Preis verlangen."
+ },
+ {
+  "id": "titanengraeber",
+  "name": "Grabkammern der Titanen",
+  "type": "dungeon",
+  "x": 0.065,
+  "y": 0.9467,
+  "desc": "Die Grabkammern der Titanen, tief unter den südlichen Ebenen. Riesige Hallen, uralte Wächter und Waffen aus einer anderen Zeit."
+ },
+ {
+  "id": "zwillingsinseln",
+  "name": "Zwillingsinseln",
+  "type": "landmarke",
+  "x": 0.47,
+  "y": 0.8667,
+  "desc": "Zwei lange, schmale Inseln, durch eine gefährliche Meerenge getrennt. Leuchtfeuer warnen die Schiffe vor den Riffen."
+ }
+]

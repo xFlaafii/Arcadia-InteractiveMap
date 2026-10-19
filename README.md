@@ -12,6 +12,19 @@ Die Karte läuft als Claude-Seite: https://claude.ai/artifact/DH22LGUZEkhpTMeBUk
 - **Nebel des Krieges**: Mit dem Pinsel aufdecken oder verdecken. Spieler sehen nur aufgedeckte Gebiete und Orte darin.
 - **Spieleransicht**: Wer die Karte nur ansehen darf, kann nichts verändern.
 
+## Die Welt
+
+| Kontinent | Vorbild | Wichtige Orte |
+| --- | --- | --- |
+| Oben rechts: Schwertküste | Faerûn (D&D) | Luskan, Niewinter, Tiefwasser, Baldurs Tor, Silbrigmond, Eiswindtal |
+| Grenzgebirge im Osten | Warhammer | Chaoswacht und Mithril-Halle, dahinter die Chaoswüste |
+| Wüste rechts: Calimshan | Südliche Schwertküste | Calimport, Memnon, Messingthron, Glasdünen |
+| Oben links: Naggaroth | Total War: Warhammer 3 | Naggarond, Ghrond, Karond Kar, Clar Karond, Hag Graef, Har Ganeth |
+| Unten rechts: Zul'Rakar | Dschungel à la World of Warcraft | Goldpyramide, Kielbruchbucht, Glutkrater, Zul'Vasha |
+| Unten links: Valdorien | Eigene Erfindung | Himmelsdorn, Aurenhall, Sturmwacht, Salzmarkt |
+
+Weltenbäume: Elarion (Hoher Wald), der Dornenbaum (Naggaroth), Zandrassil und die Lianenmutter (Zul'Rakar), Valdrassil und der Silberbaum (Valdorien).
+
 ## Rechte
 
 | Wer | Darf |
@@ -21,4 +34,6 @@ Die Karte läuft als Claude-Seite: https://claude.ai/artifact/DH22LGUZEkhpTMeBUk
 
 ## Dateien
 
-- `arcadia-karte.html` – Quelltext der Seite. Daten (Orte, Runden, Nebel) liegen im Speicher der Claude-Seite, nicht im Repo.
+- `arcadia-karte.html` – Quelltext der Seite. Die aktuellen Daten (Orte, Runden, Nebel) liegen im Speicher der Claude-Seite.
+- `daten/orte.json` – Stand der Orte beim ersten Befüllen (Koordinaten von 0 bis 1, relativ zur Karte).
+- `karte/arkadia.jpg` – das Kartenbild.
